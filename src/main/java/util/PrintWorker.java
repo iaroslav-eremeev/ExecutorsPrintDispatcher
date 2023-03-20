@@ -5,11 +5,11 @@ import model.Document;
 import java.sql.Timestamp;
 import java.util.concurrent.Callable;
 
-public class printWorker implements Callable<Integer> {
+public class PrintWorker implements Callable<Integer> {
 
     private Document document;
 
-    public printWorker(Document document) {
+    public PrintWorker(Document document) {
         this.document = document;
     }
 
