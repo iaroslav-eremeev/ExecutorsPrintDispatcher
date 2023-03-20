@@ -15,6 +15,8 @@ public class PrintDispatcher {
     private Queue<Document> notPrintedDocsQueue;
     private List<Document> printedDocs;
     private ExecutorService executorService;
+    ArrayList<Future<Integer>> futures;
+    Future<Integer> future;
 
     public PrintDispatcher(int queueLength){
         this.notPrintedDocsQueue = new LinkedList<>();
@@ -25,11 +27,11 @@ public class PrintDispatcher {
     }
 
     public void launchPrintDispatcher() {
-        ArrayList<Future<Integer>> futures = new ArrayList<>();
         this.executorService = Executors.newSingleThreadExecutor();
+        this.futures = new ArrayList<>();
         while (!executorService.isTerminated()) {
-            Future<Integer> future = executorService.submit(new PrintWorker(notPrintedDocsQueue.peek()));
-            futures.add(future);
+            this.future = executorService.submit(new PrintWorker(notPrintedDocsQueue.peek()));
+            this.futures.add(future);
             takeDocForPrinting();
         }
     }
@@ -46,7 +48,7 @@ public class PrintDispatcher {
 
     // Остановка диспетчера. Печать документов в очереди отменяется. На выходе должен быть список ненапечатанных документов.
     public List<Document> stopPrinting(){
-        this.executorService.shutdownNow();
+        this.executorService.shutdown();
         return this.notPrintedDocsQueue.stream().toList();
     }
 
@@ -61,7 +63,7 @@ public class PrintDispatcher {
 
     // Отменить печать принятого документа, если он еще не был напечатан.
     public void cancelPrinting(){
-        this.executorService.shutdown();
+        this.future.cancel(true);
     }
 
     // Получить отсортированный список напечатанных документов

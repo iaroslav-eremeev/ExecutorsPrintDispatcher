@@ -18,6 +18,8 @@ public class PrintWorker implements Callable<Integer> {
         try {
             Thread.sleep(this.document.getPrintingTime() * 1000L);
             this.document.setTimeWhenPrinted(new Timestamp(System.currentTimeMillis()));
+            System.out.println("Document " + this.document.getDocType()
+                    + " is printed on " + this.document.getTimeWhenPrinted());
             return 1;
         } catch (Exception e){
             return null;
