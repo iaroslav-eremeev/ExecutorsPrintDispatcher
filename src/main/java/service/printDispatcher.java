@@ -21,7 +21,7 @@ public class printDispatcher {
         ArrayList<Future<Integer>> futures = new ArrayList<>();
         this.executorService = Executors.newSingleThreadExecutor();
         for (int i = 0; i < notPrintedDocs.size(); i++) {
-            Future<Integer> future = executorService.submit(new printWorker());
+            Future<Integer> future = executorService.submit(new printWorker(notPrintedDocsQueue.peek()));
             futures.add(future);
             takeDocForPrinting();
         }

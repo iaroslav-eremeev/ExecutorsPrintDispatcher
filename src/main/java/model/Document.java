@@ -1,18 +1,14 @@
 package model;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Objects;
 
 public class Document {
-    /**
-     * Каждый тип документа должен иметь уникальные реквизиты: продолжительность печати, наименование типа документа, размер бумаги.
-     */
     private long printingTime;
     private String docType;
     private int[] paperSize;
-
-    private int timeOfPrint;
+    private Timestamp timeWhenPrinted;
 
     public Document() {
     }
@@ -41,12 +37,12 @@ public class Document {
         this.paperSize = paperSize;
     }
 
-    public int getTimeOfPrint() {
-        return timeOfPrint;
+    public Timestamp getTimeWhenPrinted() {
+        return timeWhenPrinted;
     }
 
-    public void setTimeOfPrint(int timeOfPrint) {
-        this.timeOfPrint = timeOfPrint;
+    public void setTimeWhenPrinted(Timestamp timeWhenPrinted) {
+        this.timeWhenPrinted = timeWhenPrinted;
     }
 
     @Override
