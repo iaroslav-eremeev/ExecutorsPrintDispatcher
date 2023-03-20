@@ -1,3 +1,6 @@
+import model.Envelope;
+import model.Photo;
+import model.Poster;
 import service.PrintDispatcher;
 
 import java.util.ArrayList;
@@ -10,6 +13,10 @@ public class Program {
         System.out.println("Enter the number of documents you want to print:");
         int numberOfDocs = scanner.nextInt();
         PrintDispatcher printDispatcher = new PrintDispatcher(numberOfDocs);
+        System.out.println(printDispatcher.getNotPrintedDocsQueue().toString());
+        System.out.println(new Poster());
+        System.out.println(new Photo());
+        System.out.println(new Envelope());
         printDispatcher.launchPrintDispatcher();
         System.out.println("Print dispatcher is launched!");
         System.out.println("If you want to cancel printing current document, enter CANCEL");

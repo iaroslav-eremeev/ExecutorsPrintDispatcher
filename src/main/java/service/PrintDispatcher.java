@@ -88,4 +88,52 @@ public class PrintDispatcher {
         }
         System.out.println("Average printing time: " + sum / printedDocs.size());
     }
+
+    public Queue<Document> getNotPrintedDocsQueue() {
+        return notPrintedDocsQueue;
+    }
+
+    public void setNotPrintedDocsQueue(Queue<Document> notPrintedDocsQueue) {
+        this.notPrintedDocsQueue = notPrintedDocsQueue;
+    }
+
+    public List<Document> getPrintedDocs() {
+        return printedDocs;
+    }
+
+    public void setPrintedDocs(List<Document> printedDocs) {
+        this.printedDocs = printedDocs;
+    }
+
+    public ExecutorService getExecutorService() {
+        return executorService;
+    }
+
+    public void setExecutorService(ExecutorService executorService) {
+        this.executorService = executorService;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PrintDispatcher that = (PrintDispatcher) o;
+        return Objects.equals(notPrintedDocsQueue, that.notPrintedDocsQueue) && Objects.equals(printedDocs, that.printedDocs) && Objects.equals(executorService, that.executorService) && Objects.equals(futures, that.futures) && Objects.equals(future, that.future);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(notPrintedDocsQueue, printedDocs, executorService, futures, future);
+    }
+
+    @Override
+    public String toString() {
+        return "PrintDispatcher{" +
+                "notPrintedDocsQueue=" + notPrintedDocsQueue +
+                ", printedDocs=" + printedDocs +
+                ", executorService=" + executorService +
+                ", futures=" + futures +
+                ", future=" + future +
+                '}';
+    }
 }
