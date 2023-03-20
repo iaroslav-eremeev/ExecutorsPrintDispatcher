@@ -1,6 +1,9 @@
 package service;
 
 import model.Document;
+import model.Envelope;
+import model.Photo;
+import model.Poster;
 import util.PrintWorker;
 
 import java.util.*;
@@ -13,18 +16,32 @@ public class PrintDispatcher {
     private List<Document> printedDocs;
     private ExecutorService executorService;
 
-    public PrintDispatcher() {
+    public PrintDispatcher(int queueLength){
+        this.notPrintedDocsQueue = new LinkedList<>();
+        for (int i = 0; i < queueLength; i++) {
+            this.notPrintedDocsQueue.add(generateRandomDocument());
+        }
+        this.printedDocs = new ArrayList<>();
     }
 
-    public PrintDispatcher(List<Document> notPrintedDocs) {
-        notPrintedDocsQueue.addAll(notPrintedDocs);
+    public void launchPrintDispatcher() {
         ArrayList<Future<Integer>> futures = new ArrayList<>();
         this.executorService = Executors.newSingleThreadExecutor();
-        for (int i = 0; i < notPrintedDocs.size(); i++) {
+        while (!executorService.isTerminated()) {
             Future<Integer> future = executorService.submit(new PrintWorker(notPrintedDocsQueue.peek()));
             futures.add(future);
             takeDocForPrinting();
         }
+    }
+
+    public Document generateRandomDocument(){
+        int random = (int) (Math.random() * 3);
+        return switch (random) {
+            case 0 -> new Poster();
+            case 1 -> new Photo();
+            case 2 -> new Envelope();
+            default -> null;
+        };
     }
 
     // Остановка диспетчера. Печать документов в очереди отменяется. На выходе должен быть список ненапечатанных документов.
