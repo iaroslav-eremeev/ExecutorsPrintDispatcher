@@ -2,6 +2,7 @@ package model;
 
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Objects;
 
 public class Document {
@@ -43,6 +44,34 @@ public class Document {
 
     public void setTimeWhenPrinted(Timestamp timeWhenPrinted) {
         this.timeWhenPrinted = timeWhenPrinted;
+    }
+
+    public class printingTimeComparator implements Comparator<Document> {
+        @Override
+        public int compare(Document o1, Document o2) {
+            return (int) (o1.getPrintingTime() - o2.getPrintingTime());
+        }
+    }
+
+    public class docTypeComparator implements Comparator<Document> {
+        @Override
+        public int compare(Document o1, Document o2) {
+            return o1.getDocType().compareTo(o2.getDocType());
+        }
+    }
+
+    public class paperSizeComparator implements Comparator<Document> {
+        @Override
+        public int compare(Document o1, Document o2) {
+            return (int) (o1.getPaperSize()[0] * o1.getPaperSize()[1] - o2.getPaperSize()[0] * o2.getPaperSize()[1]);
+        }
+    }
+
+    public class timeWhenPrintedComparator implements Comparator<Document> {
+        @Override
+        public int compare(Document o1, Document o2) {
+            return o1.getTimeWhenPrinted().compareTo(o2.getTimeWhenPrinted());
+        }
     }
 
     @Override
