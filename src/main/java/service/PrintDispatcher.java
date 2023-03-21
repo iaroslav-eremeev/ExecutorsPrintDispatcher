@@ -2,10 +2,11 @@ package service;
 
 import model.DocType;
 import model.Document;
+import util.PrintWorker;
 
+import javax.print.Doc;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 public class PrintDispatcher {
     private Queue<Document> notPrintedDocsQueue;
@@ -23,70 +24,18 @@ public class PrintDispatcher {
     }
 
     public void launchPrintDispatcher() {
-
-
-
-        /*this.executorService = Executors.newFixedThreadPool(2);
-        // Thread that reads user input from scanner and cancels printing of current document or stops printing
-        System.out.println("Print dispatcher is launched!");
-        System.out.println("If you want to cancel printing current document, enter CANCEL");
-        System.out.println("If you want to stop printing, enter STOP");
-        Scanner scanner = new Scanner(System.in);
-        Future<Integer> futureReadingInput = this.executorService.submit(new Callable<Integer>() {
-            @Override
-            public Integer call() throws Exception {
-                try {
-                    while (true){
-                        if (scanner.hasNext()){
-                            String entry = scanner.next();
-                            if (entry.equals("CANCEL")){
-                                cancelPrinting();
-                                System.out.println("Printing of current document is cancelled!");
-                                return 1;
-                            }
-                            else if (entry.equals("STOP")){
-                                stopPrinting();
-                                return 0;
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+        ArrayList<Future<Document>> futures = new ArrayList<>(this.notPrintedDocsQueue.size());
+        try(ExecutorService executorService = Executors.newSingleThreadExecutor()) {
+            Future<Document> future = executorService.submit(new PrintWorker(this.notPrintedDocsQueue.peek()));
+            futures.add(future);
+            for (Future<Document> futureDoc : futures) {
+                System.out.println("Document " + futureDoc.get().getDocType()
+                        + " is printed on " + futureDoc.get().getTimeOfPrinting());
             }
-        });
-
-        // Thread that takes document from notPrintedDocsQueue and prints it
-        this.futurePrinting = this.executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while (true){
-                        System.out.println("Printing is started!");
-                        if (futureReadingInput.isDone()){
-                            if (futureReadingInput.get() == 0){
-                                stopPrinting();
-                                throw new RuntimeException("Printing is stopped!");
-                            }
-                            else if (futureReadingInput.get() == 1){
-                                cancelPrinting();
-                            }
-                        }
-                        System.out.println("Here we know if futureReadingInput is done: " + futureReadingInput.isDone());
-                        Document document = notPrintedDocsQueue.peek();
-                        if (document != null){
-                            Thread.sleep(document.getPrintingDuration() * 1000L);
-                            document.setTimeOfPrinting(new Timestamp(System.currentTimeMillis()));
-                            System.out.println("Document " + document.getDocType()
-                                    + " is printed on " + document.getTimeOfPrinting());
-                            takeDocForPrinting();
-                        }
-                    }
-                } catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-        });*/
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 
     // Generate random document
@@ -152,7 +101,7 @@ public class PrintDispatcher {
         }
     }
 
-    // Рассчитать среднюю продолжительность печати напечатанных документов
+    // Calculate average printing time of all printed documents
     public double calculateAveragePrintingTime(){
         double sum = 0;
         for (Document doc : printedDocs){
