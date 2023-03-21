@@ -14,18 +14,18 @@ public class PrintDispatcher {
     private Queue<Document> notPrintedDocsQueue;
     private List<Document> printedDocs;
     private ExecutorService executorService;
-    private Future<?> futurePrinting;
 
-    public PrintDispatcher(int queueLength){
+    public PrintDispatcher(){
         this.notPrintedDocsQueue = new LinkedList<>();
-        for (int i = 0; i < queueLength; i++) {
-            this.notPrintedDocsQueue.add(generateRandomDocument());
-        }
         this.printedDocs = new ArrayList<>();
+        this.executorService = Executors.newSingleThreadExecutor();
     }
 
     public void launchPrintDispatcher() {
-        this.executorService = Executors.newFixedThreadPool(2);
+
+
+
+        /*this.executorService = Executors.newFixedThreadPool(2);
         // Thread that reads user input from scanner and cancels printing of current document or stops printing
         System.out.println("Print dispatcher is launched!");
         System.out.println("If you want to cancel printing current document, enter CANCEL");
@@ -85,7 +85,7 @@ public class PrintDispatcher {
                     e.printStackTrace();
                 }
             }
-        });
+        });*/
     }
 
     // Generate random document
@@ -122,14 +122,31 @@ public class PrintDispatcher {
 
     // Получить отсортированный список напечатанных документов
     public void sort(String choice){
-        if (choice.equals("PO")){
-            printedDocs.sort(new Document.timeWhenPrintedComparator());
-        } else if (choice.equals("DT")){
-            printedDocs.sort(new Document.docTypeComparator());
-        } else if (choice.equals("PT")){
-            printedDocs.sort(new Document.printingTimeComparator());
-        } else if (choice.equals("PS")){
-            printedDocs.sort(new Document.paperSizeComparator());
+        switch (choice) {
+            case "PO" -> printedDocs.sort(new Comparator<Document>() {
+                @Override
+                public int compare(Document o1, Document o2) {
+                    return (int) (o1.getPrintingTime() - o2.getPrintingTime());
+                }
+            });
+            case "DT" -> printedDocs.sort(new Comparator<Document>() {
+                @Override
+                public int compare(Document o1, Document o2) {
+                    return o1.getDocType().compareTo(o2.getDocType());
+                }
+            });
+            case "TP" -> printedDocs.sort(new Comparator<Document>() {
+                @Override
+                public int compare(Document o1, Document o2) {
+                    return (int) (o1.getTimeWhenPrinted().getTime() - o2.getTimeWhenPrinted().getTime());
+                }
+            });
+            case "PS" -> printedDocs.sort(new Comparator<Document>() {
+                @Override
+                public int compare(Document o1, Document o2) {
+                    return o1.getPaperSize()[0] * o1.getPaperSize()[1] - o2.getPaperSize()[0] * o2.getPaperSize()[1];
+                }
+            });
         }
     }
 

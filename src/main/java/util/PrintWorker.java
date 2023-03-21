@@ -2,10 +2,11 @@ package util;
 
 import model.Document;
 
+import javax.print.Doc;
 import java.sql.Timestamp;
 import java.util.concurrent.Callable;
 
-public class PrintWorker implements Callable<Integer> {
+public class PrintWorker implements Callable<Document> {
 
     private Document document;
 
@@ -14,13 +15,13 @@ public class PrintWorker implements Callable<Integer> {
     }
 
     @Override
-    public Integer call() throws Exception {
+    public Document call() throws Exception {
         try {
-            Thread.sleep(this.document.getPrintingTime() * 1000L);
-            this.document.setTimeWhenPrinted(new Timestamp(System.currentTimeMillis()));
-            System.out.println("Document " + this.document.getDocType()
-                    + " is printed on " + this.document.getTimeWhenPrinted());
-            return 1;
+            Thread.sleep(document.getPrintingTime() * 1000L);
+            document.setTimeWhenPrinted(new Timestamp(System.currentTimeMillis()));
+            System.out.println("Document " + document.getDocType()
+                    + " is printed on " + document.getTimeWhenPrinted());
+            return document;
         } catch (Exception e){
             return null;
         }
