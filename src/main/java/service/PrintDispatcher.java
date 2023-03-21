@@ -14,6 +14,10 @@ public class PrintDispatcher {
 
     public PrintDispatcher(){
         this.notPrintedDocsQueue = new LinkedList<>();
+        Random random = new Random();
+        for (int i = 0; i < random.nextInt(5, 21); i++) {
+            this.notPrintedDocsQueue.add(generateRandomDocument());
+        }
         this.printedDocs = new ArrayList<>();
         this.executorService = Executors.newSingleThreadExecutor();
     }
@@ -96,13 +100,13 @@ public class PrintDispatcher {
         };
     }
 
-    // Остановка диспетчера. Печать документов в очереди отменяется. На выходе должен быть список ненапечатанных документов.
+    // Stop dispatcher. Cancel printing of documents from the queue. Returns list of not printed documents
     public List<Document> stopPrinting(){
         this.executorService.shutdown();
         return this.notPrintedDocsQueue.stream().toList();
     }
 
-    // Принять документ на печать. Метод не должен блокировать выполнение программы.
+    // Accept document for printing
     public synchronized void takeDocForPrinting(){
         Document doc = notPrintedDocsQueue.peek();
         if (doc != null){
@@ -112,9 +116,10 @@ public class PrintDispatcher {
         }
     }
 
-    // Отменить печать принятого документа, если он еще не был напечатан.
-    public void cancelPrinting(){
-        this.futurePrinting.cancel(true);
+    //TODO Возможно ли что после этого мы продолжаем печать других документов?
+    // Cancel printing of current document if it is not printed yet
+    public void cancelCurrentDocPrinting(){
+        this.executorService.shutdownNow();
     }
 
     // Sort printed documents by printing duration, document type, time of printing, paper size
