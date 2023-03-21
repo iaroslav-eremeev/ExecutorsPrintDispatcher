@@ -1,37 +1,35 @@
 package model;
 
-import javax.print.Doc;
 import java.sql.Timestamp;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Objects;
 
 public class Document {
-    private long printingTime;
+    private long printingDuration;
     private DocType docType;
     private int[] paperSize;
-    private Timestamp timeWhenPrinted;
+    private Timestamp timeOfPrinting;
 
     public Document(DocType docType) {
         this.docType = docType;
         if (docType == DocType.ENVELOPE) {
-            this.printingTime = 2;
+            this.printingDuration = 2;
             this.paperSize = new int[]{9, 12};
         } else if (docType == DocType.PHOTO) {
-            this.printingTime = 4;
+            this.printingDuration = 4;
             this.paperSize = new int[]{10, 15};
         } else if (docType == DocType.POSTER) {
-            this.printingTime = 6;
+            this.printingDuration = 6;
             this.paperSize = new int[]{18, 24};
         }
     }
 
-    public long getPrintingTime() {
-        return printingTime;
+    public long getPrintingDuration() {
+        return printingDuration;
     }
 
-    public void setPrintingTime(long printingTime) {
-        this.printingTime = printingTime;
+    public void setPrintingDuration(long printingDuration) {
+        this.printingDuration = printingDuration;
     }
 
     public DocType getDocType() {
@@ -50,12 +48,12 @@ public class Document {
         this.paperSize = paperSize;
     }
 
-    public Timestamp getTimeWhenPrinted() {
-        return timeWhenPrinted;
+    public Timestamp getTimeOfPrinting() {
+        return timeOfPrinting;
     }
 
-    public void setTimeWhenPrinted(Timestamp timeWhenPrinted) {
-        this.timeWhenPrinted = timeWhenPrinted;
+    public void setTimeOfPrinting(Timestamp timeOfPrinting) {
+        this.timeOfPrinting = timeOfPrinting;
     }
 
     @Override
@@ -63,12 +61,12 @@ public class Document {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Document document = (Document) o;
-        return printingTime == document.printingTime && docType == document.docType && Arrays.equals(paperSize, document.paperSize) && Objects.equals(timeWhenPrinted, document.timeWhenPrinted);
+        return printingDuration == document.printingDuration && docType == document.docType && Arrays.equals(paperSize, document.paperSize) && Objects.equals(timeOfPrinting, document.timeOfPrinting);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(printingTime, docType, timeWhenPrinted);
+        int result = Objects.hash(printingDuration, docType, timeOfPrinting);
         result = 31 * result + Arrays.hashCode(paperSize);
         return result;
     }
@@ -76,10 +74,10 @@ public class Document {
     @Override
     public String toString() {
         return "Document{" +
-                "printingTime=" + printingTime +
+                "printingDuration=" + printingDuration +
                 ", docType=" + docType +
                 ", paperSize=" + Arrays.toString(paperSize) +
-                ", timeWhenPrinted=" + timeWhenPrinted +
+                ", timeOfPrinting=" + timeOfPrinting +
                 '}';
     }
 }

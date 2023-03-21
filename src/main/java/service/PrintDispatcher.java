@@ -3,12 +3,9 @@ package service;
 import model.DocType;
 import model.Document;
 
-import java.sql.Timestamp;
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class PrintDispatcher {
     private Queue<Document> notPrintedDocsQueue;
@@ -74,10 +71,10 @@ public class PrintDispatcher {
                         System.out.println("Here we know if futureReadingInput is done: " + futureReadingInput.isDone());
                         Document document = notPrintedDocsQueue.peek();
                         if (document != null){
-                            Thread.sleep(document.getPrintingTime() * 1000L);
-                            document.setTimeWhenPrinted(new Timestamp(System.currentTimeMillis()));
+                            Thread.sleep(document.getPrintingDuration() * 1000L);
+                            document.setTimeOfPrinting(new Timestamp(System.currentTimeMillis()));
                             System.out.println("Document " + document.getDocType()
-                                    + " is printed on " + document.getTimeWhenPrinted());
+                                    + " is printed on " + document.getTimeOfPrinting());
                             takeDocForPrinting();
                         }
                     }
@@ -120,13 +117,13 @@ public class PrintDispatcher {
         this.futurePrinting.cancel(true);
     }
 
-    // Получить отсортированный список напечатанных документов
+    // Sort printed documents by printing duration, document type, time of printing, paper size
     public void sort(String choice){
         switch (choice) {
-            case "PO" -> printedDocs.sort(new Comparator<Document>() {
+            case "PD" -> printedDocs.sort(new Comparator<Document>() {
                 @Override
                 public int compare(Document o1, Document o2) {
-                    return (int) (o1.getPrintingTime() - o2.getPrintingTime());
+                    return (int) (o1.getPrintingDuration() - o2.getPrintingDuration());
                 }
             });
             case "DT" -> printedDocs.sort(new Comparator<Document>() {
@@ -138,7 +135,7 @@ public class PrintDispatcher {
             case "TP" -> printedDocs.sort(new Comparator<Document>() {
                 @Override
                 public int compare(Document o1, Document o2) {
-                    return (int) (o1.getTimeWhenPrinted().getTime() - o2.getTimeWhenPrinted().getTime());
+                    return (int) (o1.getTimeOfPrinting().getTime() - o2.getTimeOfPrinting().getTime());
                 }
             });
             case "PS" -> printedDocs.sort(new Comparator<Document>() {
@@ -154,7 +151,7 @@ public class PrintDispatcher {
     public double calculateAveragePrintingTime(){
         double sum = 0;
         for (Document doc : printedDocs){
-            sum += doc.getPrintingTime();
+            sum += doc.getPrintingDuration();
         }
         return sum / printedDocs.size();
     }
