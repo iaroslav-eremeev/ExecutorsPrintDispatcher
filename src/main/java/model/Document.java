@@ -1,5 +1,6 @@
 package model;
 
+import javax.print.Doc;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -7,11 +8,22 @@ import java.util.Objects;
 
 public class Document {
     private long printingTime;
-    private String docType;
+    private DocType docType;
     private int[] paperSize;
     private Timestamp timeWhenPrinted;
 
-    public Document() {
+    public Document(DocType docType) {
+        this.docType = docType;
+        if (docType == DocType.ENVELOPE) {
+            this.printingTime = 2;
+            this.paperSize = new int[]{9, 12};
+        } else if (docType == DocType.PHOTO) {
+            this.printingTime = 4;
+            this.paperSize = new int[]{10, 15};
+        } else if (docType == DocType.POSTER) {
+            this.printingTime = 6;
+            this.paperSize = new int[]{18, 24};
+        }
     }
 
     public long getPrintingTime() {
@@ -22,11 +34,11 @@ public class Document {
         this.printingTime = printingTime;
     }
 
-    public String getDocType() {
+    public DocType getDocType() {
         return docType;
     }
 
-    public void setDocType(String docType) {
+    public void setDocType(DocType docType) {
         this.docType = docType;
     }
 
@@ -46,45 +58,17 @@ public class Document {
         this.timeWhenPrinted = timeWhenPrinted;
     }
 
-    public static class printingTimeComparator implements Comparator<Document> {
-        @Override
-        public int compare(Document o1, Document o2) {
-            return (int) (o1.getPrintingTime() - o2.getPrintingTime());
-        }
-    }
-
-    public static class docTypeComparator implements Comparator<Document> {
-        @Override
-        public int compare(Document o1, Document o2) {
-            return o1.getDocType().compareTo(o2.getDocType());
-        }
-    }
-
-    public static class paperSizeComparator implements Comparator<Document> {
-        @Override
-        public int compare(Document o1, Document o2) {
-            return (int) (o1.getPaperSize()[0] * o1.getPaperSize()[1] - o2.getPaperSize()[0] * o2.getPaperSize()[1]);
-        }
-    }
-
-    public static class timeWhenPrintedComparator implements Comparator<Document> {
-        @Override
-        public int compare(Document o1, Document o2) {
-            return o1.getTimeWhenPrinted().compareTo(o2.getTimeWhenPrinted());
-        }
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Document document = (Document) o;
-        return printingTime == document.printingTime && Objects.equals(docType, document.docType) && Arrays.equals(paperSize, document.paperSize);
+        return printingTime == document.printingTime && docType == document.docType && Arrays.equals(paperSize, document.paperSize) && Objects.equals(timeWhenPrinted, document.timeWhenPrinted);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(printingTime, docType);
+        int result = Objects.hash(printingTime, docType, timeWhenPrinted);
         result = 31 * result + Arrays.hashCode(paperSize);
         return result;
     }
@@ -93,8 +77,9 @@ public class Document {
     public String toString() {
         return "Document{" +
                 "printingTime=" + printingTime +
-                ", docType='" + docType + '\'' +
+                ", docType=" + docType +
                 ", paperSize=" + Arrays.toString(paperSize) +
+                ", timeWhenPrinted=" + timeWhenPrinted +
                 '}';
     }
 }

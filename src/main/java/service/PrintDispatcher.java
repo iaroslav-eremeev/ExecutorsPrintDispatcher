@@ -1,10 +1,7 @@
 package service;
 
+import model.DocType;
 import model.Document;
-import model.Envelope;
-import model.Photo;
-import model.Poster;
-import util.PrintWorker;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -37,18 +34,24 @@ public class PrintDispatcher {
         Future<Integer> futureReadingInput = this.executorService.submit(new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {
-                String entry = scanner.next();
-                if (entry.equals("CANCEL")){
-                    cancelPrinting();
-                    System.out.println("Printing of current document is cancelled!");
-                    return 1;
+                try {
+                    while (true){
+                        if (scanner.hasNext()){
+                            String entry = scanner.next();
+                            if (entry.equals("CANCEL")){
+                                cancelPrinting();
+                                System.out.println("Printing of current document is cancelled!");
+                                return 1;
+                            }
+                            else if (entry.equals("STOP")){
+                                stopPrinting();
+                                return 0;
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
-                else if (entry.equals("STOP")){
-                    stopPrinting();
-                    System.out.println("Printing is stopped!");
-                    return 0;
-                }
-                else return -1;
             }
         });
 
@@ -57,21 +60,26 @@ public class PrintDispatcher {
             @Override
             public void run() {
                 try {
-                    if (futureReadingInput.isDone()){
-                        if (futureReadingInput.get() == 0){
-                            stopPrinting();
+                    while (true){
+                        System.out.println("Printing is started!");
+                        if (futureReadingInput.isDone()){
+                            if (futureReadingInput.get() == 0){
+                                stopPrinting();
+                                throw new RuntimeException("Printing is stopped!");
+                            }
+                            else if (futureReadingInput.get() == 1){
+                                cancelPrinting();
+                            }
                         }
-                        else if (futureReadingInput.get() == 1){
-                            cancelPrinting();
+                        System.out.println("Here we know if futureReadingInput is done: " + futureReadingInput.isDone());
+                        Document document = notPrintedDocsQueue.peek();
+                        if (document != null){
+                            Thread.sleep(document.getPrintingTime() * 1000L);
+                            document.setTimeWhenPrinted(new Timestamp(System.currentTimeMillis()));
+                            System.out.println("Document " + document.getDocType()
+                                    + " is printed on " + document.getTimeWhenPrinted());
+                            takeDocForPrinting();
                         }
-                    }
-                    Document document = notPrintedDocsQueue.peek();
-                    if (document != null){
-                        Thread.sleep(document.getPrintingTime() * 1000L);
-                        document.setTimeWhenPrinted(new Timestamp(System.currentTimeMillis()));
-                        System.out.println("Document " + document.getDocType()
-                                + " is printed on " + document.getTimeWhenPrinted());
-                        takeDocForPrinting();
                     }
                 } catch (Exception e){
                     e.printStackTrace();
@@ -80,12 +88,13 @@ public class PrintDispatcher {
         });
     }
 
+    // Generate random document
     public Document generateRandomDocument(){
         int random = (int) (Math.random() * 3);
         return switch (random) {
-            case 0 -> new Poster();
-            case 1 -> new Photo();
-            case 2 -> new Envelope();
+            case 0 -> new Document(DocType.POSTER);
+            case 1 -> new Document(DocType.PHOTO);
+            case 2 -> new Document(DocType.ENVELOPE);
             default -> null;
         };
     }
@@ -102,6 +111,7 @@ public class PrintDispatcher {
         if (doc != null){
             printedDocs.add(doc);
             notPrintedDocsQueue.poll();
+            System.out.println("First in the queue now is " + notPrintedDocsQueue.peek().getDocType());
         }
     }
 
