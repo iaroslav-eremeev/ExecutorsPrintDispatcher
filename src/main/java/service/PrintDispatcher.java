@@ -6,7 +6,9 @@ import model.Photo;
 import model.Poster;
 import util.PrintWorker;
 
+import java.sql.Timestamp;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -15,8 +17,7 @@ public class PrintDispatcher {
     private Queue<Document> notPrintedDocsQueue;
     private List<Document> printedDocs;
     private ExecutorService executorService;
-    ArrayList<Future<Integer>> futures;
-    Future<Integer> future;
+    private Future<?> futurePrinting;
 
     public PrintDispatcher(int queueLength){
         this.notPrintedDocsQueue = new LinkedList<>();
@@ -27,13 +28,56 @@ public class PrintDispatcher {
     }
 
     public void launchPrintDispatcher() {
-        this.executorService = Executors.newSingleThreadExecutor();
-        this.futures = new ArrayList<>();
-        while (!executorService.isTerminated()) {
-            this.future = executorService.submit(new PrintWorker(notPrintedDocsQueue.peek()));
-            this.futures.add(future);
-            takeDocForPrinting();
-        }
+        this.executorService = Executors.newFixedThreadPool(2);
+        // Thread that reads user input from scanner and cancels printing of current document or stops printing
+        System.out.println("Print dispatcher is launched!");
+        System.out.println("If you want to cancel printing current document, enter CANCEL");
+        System.out.println("If you want to stop printing, enter STOP");
+        Scanner scanner = new Scanner(System.in);
+        Future<Integer> futureReadingInput = this.executorService.submit(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                String entry = scanner.next();
+                if (entry.equals("CANCEL")){
+                    cancelPrinting();
+                    System.out.println("Printing of current document is cancelled!");
+                    return 1;
+                }
+                else if (entry.equals("STOP")){
+                    stopPrinting();
+                    System.out.println("Printing is stopped!");
+                    return 0;
+                }
+                else return -1;
+            }
+        });
+
+        // Thread that takes document from notPrintedDocsQueue and prints it
+        this.futurePrinting = this.executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (futureReadingInput.isDone()){
+                        if (futureReadingInput.get() == 0){
+                            stopPrinting();
+                        }
+                        else if (futureReadingInput.get() == 1){
+                            cancelPrinting();
+                        }
+                    }
+                    Document document = notPrintedDocsQueue.peek();
+                    if (document != null){
+                        Thread.sleep(document.getPrintingTime() * 1000L);
+                        document.setTimeWhenPrinted(new Timestamp(System.currentTimeMillis()));
+                        System.out.println("Document " + document.getDocType()
+                                + " is printed on " + document.getTimeWhenPrinted());
+                        takeDocForPrinting();
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     public Document generateRandomDocument(){
@@ -63,7 +107,7 @@ public class PrintDispatcher {
 
     // Отменить печать принятого документа, если он еще не был напечатан.
     public void cancelPrinting(){
-        this.future.cancel(true);
+        this.futurePrinting.cancel(true);
     }
 
     // Получить отсортированный список напечатанных документов
@@ -110,29 +154,5 @@ public class PrintDispatcher {
 
     public void setExecutorService(ExecutorService executorService) {
         this.executorService = executorService;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PrintDispatcher that = (PrintDispatcher) o;
-        return Objects.equals(notPrintedDocsQueue, that.notPrintedDocsQueue) && Objects.equals(printedDocs, that.printedDocs) && Objects.equals(executorService, that.executorService) && Objects.equals(futures, that.futures) && Objects.equals(future, that.future);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(notPrintedDocsQueue, printedDocs, executorService, futures, future);
-    }
-
-    @Override
-    public String toString() {
-        return "PrintDispatcher{" +
-                "notPrintedDocsQueue=" + notPrintedDocsQueue +
-                ", printedDocs=" + printedDocs +
-                ", executorService=" + executorService +
-                ", futures=" + futures +
-                ", future=" + future +
-                '}';
     }
 }

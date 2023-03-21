@@ -14,22 +14,7 @@ public class Program {
         int numberOfDocs = scanner.nextInt();
         PrintDispatcher printDispatcher = new PrintDispatcher(numberOfDocs);
         System.out.println(printDispatcher.getNotPrintedDocsQueue().toString());
-        System.out.println("Print dispatcher is launched!");
-        System.out.println("If you want to cancel printing current document, enter CANCEL");
-        System.out.println("If you want to stop printing, enter STOP");
         printDispatcher.launchPrintDispatcher();
-        while (true){
-            String entry = scanner.next();
-            if (entry.equals("CANCEL")){
-                printDispatcher.cancelPrinting();
-                System.out.println("Printing of current document is cancelled!");
-            }
-            if (entry.equals("STOP")){
-                printDispatcher.stopPrinting();
-                System.out.println("Printing is stopped!");
-                break;
-            }
-        }
         System.out.println("If you want to sort printed documents, enter SORT");
         System.out.println("If you want to exit, enter EXIT");
         String entry = scanner.next();
