@@ -9,7 +9,7 @@ public class Photo extends Document {
     private String docType;
     private int[] paperSize;
     public Photo() {
-        this.printingTime = 5;
+        this.printingTime = 4;
         this.docType = "Photo";
         this.paperSize = new int[]{13, 8};
     }

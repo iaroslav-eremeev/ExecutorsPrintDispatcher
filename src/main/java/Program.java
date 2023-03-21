@@ -14,13 +14,10 @@ public class Program {
         int numberOfDocs = scanner.nextInt();
         PrintDispatcher printDispatcher = new PrintDispatcher(numberOfDocs);
         System.out.println(printDispatcher.getNotPrintedDocsQueue().toString());
-        System.out.println(new Poster());
-        System.out.println(new Photo());
-        System.out.println(new Envelope());
-        printDispatcher.launchPrintDispatcher();
         System.out.println("Print dispatcher is launched!");
         System.out.println("If you want to cancel printing current document, enter CANCEL");
         System.out.println("If you want to stop printing, enter STOP");
+        printDispatcher.launchPrintDispatcher();
         while (true){
             String entry = scanner.next();
             if (entry.equals("CANCEL")){
@@ -42,7 +39,10 @@ public class Program {
                         "document type (DT), printing time (PT), paper size (PS)?");
                 String choice = scanner.next();
                 printDispatcher.sort(choice);
+                System.out.println(printDispatcher.getPrintedDocs().toString());
             }
         }
+        System.out.println("Average printing time is:");
+        System.out.println(printDispatcher.calculateAveragePrintingTime());
     }
 }

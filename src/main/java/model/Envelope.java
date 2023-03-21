@@ -9,7 +9,7 @@ public class Envelope extends Document {
     private String docType;
     private int[] paperSize;
     public Envelope() {
-        this.printingTime = 3;
+        this.printingTime = 2;
         this.docType = "Envelope";
         this.paperSize = new int[]{22, 10};
     }

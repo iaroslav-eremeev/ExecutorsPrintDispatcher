@@ -8,7 +8,7 @@ public class Poster extends Document {
     private String docType;
     private int[] paperSize;
     public Poster() {
-        this.printingTime = 10;
+        this.printingTime = 6;
         this.docType = "Poster";
         this.paperSize = new int[]{30, 40};
     }

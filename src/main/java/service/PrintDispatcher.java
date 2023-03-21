@@ -77,16 +77,15 @@ public class PrintDispatcher {
         } else if (choice.equals("PS")){
             printedDocs.sort(new Document.paperSizeComparator());
         }
-        System.out.println(printedDocs);
     }
 
     // Рассчитать среднюю продолжительность печати напечатанных документов
-    public void calculateAveragePrintingTime(){
-        long sum = 0;
+    public double calculateAveragePrintingTime(){
+        double sum = 0;
         for (Document doc : printedDocs){
             sum += doc.getPrintingTime();
         }
-        System.out.println("Average printing time: " + sum / printedDocs.size());
+        return sum / printedDocs.size();
     }
 
     public Queue<Document> getNotPrintedDocsQueue() {
