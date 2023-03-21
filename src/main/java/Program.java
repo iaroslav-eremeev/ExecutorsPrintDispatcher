@@ -15,10 +15,21 @@ public class Program {
         });
         System.out.println("To wait until current document is printed and stop printing enter STOP");
         System.out.println("To cancel current document printing enter CANCEL");
+        String entry = scanner.next();
+        while (true){
+            if (entry.equals("STOP")){
+                printDispatcher.stopPrinting();
+                break;
+            }
+            else if (entry.equals("CANCEL")){
+                printDispatcher.cancelCurrentDocPrinting();
+                break;
+            }
+        }
         if (printDispatcher.getExecutorService().isShutdown()) {
             System.out.println("If you want to sort printed documents, enter SORT");
             System.out.println("If you want to exit, enter EXIT");
-            String entry = scanner.next();
+            entry = scanner.next();
             while (!entry.equals("EXIT")) {
                 if (entry.equals("SORT")) {
                     System.out.println("What type of sort do you want? Printing duration (PD), " +
