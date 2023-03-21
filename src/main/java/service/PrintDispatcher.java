@@ -24,17 +24,14 @@ public class PrintDispatcher {
     }
 
     public void launchPrintDispatcher() {
-        ArrayList<Future<Document>> futures = new ArrayList<>(this.notPrintedDocsQueue.size());
         try(ExecutorService executorService = Executors.newSingleThreadExecutor()) {
             while (!executorService.isShutdown()) {
                 assert this.notPrintedDocsQueue.peek() != null;
                 System.out.println("New document from queue is " + this.notPrintedDocsQueue.peek().getDocType());
+                takeDocForPrinting();
                 Future<Document> future = executorService.submit(new PrintWorker(this.notPrintedDocsQueue.peek()));
-                futures.add(future);
-                for (Future<Document> futureDoc : futures) {
-                    System.out.println("Document " + futureDoc.get().getDocType()
-                            + " is printed on " + futureDoc.get().getTimeOfPrinting());
-                }
+                System.out.println("Document " + future.get().getDocType()
+                            + " is printed on " + future.get().getTimeOfPrinting());
             }
 
         } catch (ExecutionException | InterruptedException e) {
