@@ -10,9 +10,11 @@ public class Program {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                System.out.println("Print dispatcher is launched!");
                 printDispatcher.launchPrintDispatcher();
             }
         });
+        thread.start();
         System.out.println("To wait until current document is printed and stop printing enter STOP");
         System.out.println("To cancel current document printing enter CANCEL");
         String entry = scanner.next();
