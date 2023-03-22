@@ -13,13 +13,13 @@ public class Document {
     public Document(DocType docType) {
         this.docType = docType;
         if (docType == DocType.ENVELOPE) {
-            this.printingDuration = 2;
+            this.printingDuration = 5;
             this.paperSize = new int[]{9, 12};
         } else if (docType == DocType.PHOTO) {
-            this.printingDuration = 4;
+            this.printingDuration = 10;
             this.paperSize = new int[]{10, 15};
         } else if (docType == DocType.POSTER) {
-            this.printingDuration = 6;
+            this.printingDuration = 15;
             this.paperSize = new int[]{18, 24};
         }
     }

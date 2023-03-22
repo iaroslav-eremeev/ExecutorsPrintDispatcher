@@ -2,10 +2,10 @@ package service;
 
 import model.DocType;
 import model.Document;
-import org.w3c.dom.ls.LSOutput;
 import util.PrintWorker;
 
-import javax.print.Doc;
+import java.sql.SQLOutput;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -21,27 +21,35 @@ public class PrintDispatcher {
             this.notPrintedDocsQueue.add(generateRandomDocument());
         }
         this.printedDocs = new ArrayList<>();
-        this.executorService = Executors.newSingleThreadExecutor();
+        /*this.executorService = Executors.newSingleThreadExecutor();*/
     }
 
     public void launchPrintDispatcher() {
-        try{
-            this.executorService = Executors.newSingleThreadExecutor();
-            //TODO Не проверяет правильно, что экзекьютор сервис закрыт
-            while (!executorService.isShutdown() && !this.notPrintedDocsQueue.isEmpty()) {
-                System.out.println("First in the queue now is " + this.notPrintedDocsQueue.peek().getDocType());
-                Future<Document> future = executorService.submit(new PrintWorker(this.notPrintedDocsQueue.peek()));
-                takeDocForPrinting();
-                System.out.println("Document " + future.get().getDocType()
-                            + " is printed on " + future.get().getTimeOfPrinting());
+        while (!this.notPrintedDocsQueue.isEmpty()) {
+            if (this.executorService == null || this.executorService.isShutdown()) {
+                this.executorService = Executors.newSingleThreadExecutor();
+                Document document = this.notPrintedDocsQueue.peek();
+                if (document != null){
+                    System.out.println("First in the queue now is " + document.getDocType());
+                    if (!this.executorService.isShutdown()){
+                        executorService.execute(() -> {
+                            try {
+                                System.out.println("Document " + document.getDocType() + " is printing");
+                                document.setTimeOfPrinting(new Timestamp(System.currentTimeMillis()));
+                                Thread.sleep(document.getPrintingDuration() * 1000L);
+                                takeDocForPrinting(document);
+                                System.out.println("Document " + document.getDocType()
+                                        + " is printed on " + document.getTimeOfPrinting());
+                                cancelPrinting();
+                            } catch (Exception ignored) {
+                            }
+                        });
+                    }
+                }
+                else {
+                    System.out.println("Queue is empty");
+                }
             }
-            if (this.notPrintedDocsQueue.isEmpty()){
-                System.out.println("Queue is empty");
-            }
-            System.out.println("executorService.isShutdown() = " + executorService.isShutdown());
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
         }
     }
 
@@ -56,27 +64,27 @@ public class PrintDispatcher {
         };
     }
 
-    //TODO Стоп не работает
     // Stop dispatcher. Cancel printing of documents from the queue. Returns list of not printed documents
     public List<Document> stopPrinting(){
-        this.executorService.shutdown(); // TODO Шатдаун не работает
-        return this.notPrintedDocsQueue.stream().toList();
+        System.out.println("Stopped on " + new Timestamp(System.currentTimeMillis()));
+        List<Document> documents = this.notPrintedDocsQueue.stream().toList();
+        cancelPrinting();
+        this.notPrintedDocsQueue.clear();
+        return documents;
     }
 
     // Accept document for printing
-    public synchronized void takeDocForPrinting(){
-        Document doc = notPrintedDocsQueue.peek();
+    public synchronized void takeDocForPrinting(Document doc){
         if (doc != null){
             printedDocs.add(doc);
             notPrintedDocsQueue.poll();
         }
     }
 
-    //TODO Возможно ли что после этого мы продолжаем печать других документов?
-    //TODO Отмена не работает
     // Cancel printing of current document if it is not printed yet
-    public void cancelCurrentDocPrinting(){
-        this.executorService.shutdownNow(); // TODO Шатдаун не работает
+    public void cancelPrinting(){
+        this.executorService.shutdownNow();
+        this.notPrintedDocsQueue.poll();
     }
 
     // Sort printed documents by printing duration, document type, time of printing, paper size
