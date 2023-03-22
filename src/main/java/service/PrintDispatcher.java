@@ -124,6 +124,47 @@ public class PrintDispatcher {
         return sum / printedDocs.size();
     }
 
+    public void waitForCancelOrStop(Scanner scanner) throws InterruptedException {
+        System.out.println("To wait until current document is printed and stop printing enter STOP");
+        System.out.println("To cancel current document printing enter CANCEL");
+        String entry = scanner.next();
+        while (true){
+            if (entry.equals("STOP")){
+                stopPrinting();
+                break;
+            }
+            else if (entry.equals("CANCEL")){
+                cancelPrinting();
+                entry = scanner.next();
+                System.out.println("Printing of current document is cancelled!");
+            }
+        }
+    }
+
+    public void waitForSortOrExit(Scanner scanner){
+        System.out.println("If you want to sort printed documents, enter SORT");
+        System.out.println("If you want to exit, enter EXIT");
+        String entry = scanner.next();
+        while (true) {
+            if (entry.equals("SORT")) {
+                System.out.println("What type of sort do you want? Printing duration (PD), " +
+                        "document type (DT), time of printing (TP) or paper size (PS)?");
+                entry = scanner.next();
+                if (entry.equals("PD") || entry.equals("DT") || entry.equals("TP") || entry.equals("PS")){
+                    sort(entry);
+                    System.out.println(getPrintedDocs().toString());
+                }
+                else {
+                    System.out.println("Wrong choice!");
+                }
+            }
+            if (entry.equals("EXIT")){
+                break;
+            }
+            entry = scanner.next();
+        }
+    }
+
     public List<Document> getPrintedDocs() {
         return printedDocs;
     }
