@@ -2,9 +2,7 @@ package service;
 
 import model.DocType;
 import model.Document;
-import util.PrintWorker;
 
-import java.sql.SQLOutput;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.*;
@@ -126,27 +124,11 @@ public class PrintDispatcher {
         return sum / printedDocs.size();
     }
 
-    public Queue<Document> getNotPrintedDocsQueue() {
-        return notPrintedDocsQueue;
-    }
-
-    public void setNotPrintedDocsQueue(Queue<Document> notPrintedDocsQueue) {
-        this.notPrintedDocsQueue = notPrintedDocsQueue;
-    }
-
     public List<Document> getPrintedDocs() {
         return printedDocs;
     }
 
     public void setPrintedDocs(List<Document> printedDocs) {
         this.printedDocs = printedDocs;
-    }
-
-    public ExecutorService getExecutorService() {
-        return executorService;
-    }
-
-    public void setExecutorService(ExecutorService executorService) {
-        this.executorService = executorService;
     }
 }
